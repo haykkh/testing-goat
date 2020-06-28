@@ -1,4 +1,6 @@
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+import time
 import unittest
 
 class NewVisitorTest(unittest.TestCase):
@@ -16,30 +18,47 @@ class NewVisitorTest(unittest.TestCase):
 
         # she notices the page title and header mention to-do lists
         self.assertIn('To-Do', self.browser.title)
+        header_text = self.browser.find_element_by_tag_name('h1').text
+        self.assertIn('To-Do', header_text)
 
-        self.fail('Finish the test!')
+        # she is invited to enter a to-do item straight away
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        self.assertEqual(
+            inputbox.get_attribute('placeholder'),
+            'Enter a to-do item'
+            )
 
-    # she is invited to enter a to-do item straight away
+        # she types 'Buy peacock feathers' into a text box
+        # (edith's hobby is fly-fishing lures)
+        inputbox.send_keys('Buy peacock feathers')
 
-    # she types 'Buy peacock feathers' into a text box
-    # (edith's hobby is fly-fishing lures)
+        # when she hits enter, the page updates, and now the page lists
+        # '1: Buy peacock feathers' as an item in a to-do list
+        inputbox.send_keys(Keys.ENTER)
+        time.sleep(1)
 
-    # when she hits enter, the page updates, and now the page lists
-    # '1: Buy peacock feathers' as an item in a to-do list
+        table = self.browser.find_element_by_id('id_list_table')
 
-    # there is still a text box inviting her to add another item
-    # she enters 'Use peacock feathers to make a fly'
-    # (edith is very methodical)
+        rows = table.find_elementsby_tag_name('tr')
 
-    # the page updates again, and now shows both items on her list
+        self.assertTrue(
+            any(row.text == '1: Buy peacock feathers' for row in rows)
+        )
 
-    # edith wonders whether the site will remember her list
-    # then she sees that the site has generated a unique URL for her
-    # there is some explanatory text to that effect
+        # there is still a text box inviting her to add another item
+        # she enters 'Use peacock feathers to make a fly'
+        # (edith is very methodical)
+        self.fail('Finish your tests!')
 
-    # she visits that URL - her to-do list is still there
+        # the page updates again, and now shows both items on her list
 
-    # satisfied, she goes back to sleep
+        # edith wonders whether the site will remember her list
+        # then she sees that the site has generated a unique URL for her
+        # there is some explanatory text to that effect
+
+        # she visits that URL - her to-do list is still there
+
+        # satisfied, she goes back to sleep
 
 if __name__ == '__main__':
     unittest.main(warnings='ignore')
